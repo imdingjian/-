@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="社會勞動時數記錄與統計 PWA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="社會勞動">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>社會勞動時數</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#172033;--muted:#687386;--line:#e5e9f0;--blue:#2563eb;--blue2:#4f46e5;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--shadow:0 8px 24px rgba(20,35,60,.07)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:680px;margin:auto;min-height:100vh;padding-bottom:100px}
+.header{padding:24px 20px 30px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:0 0 28px 28px}
+.header h1{margin:0;font-size:26px}.header p{margin:6px 0 0;opacity:.86;font-size:14px}
+main{padding:16px;margin-top:-14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.label{font-size:13px;color:var(--muted)}.value{font-size:24px;font-weight:800;margin-top:5px}.blue{color:var(--blue)}.green{color:var(--green)}.orange{color:var(--orange)}.red{color:var(--red)}
+.progress{margin-top:12px}.progress-top{display:flex;justify-content:space-between;font-size:13px}.bar{height:10px;background:#e9edf3;border-radius:20px;margin-top:8px;overflow:hidden}.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:20px;transition:.3s}
+.settings{margin-top:12px}.setting-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;color:var(--text);outline:none}.field textarea{min-height:82px;resize:vertical}
+.month{display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px}.month strong{font-size:19px}.iconbtn{border:0;background:#fff;border-radius:13px;width:42px;height:42px;box-shadow:var(--shadow);font-size:22px}
+.calendar{background:#fff;border-radius:20px;padding:10px;box-shadow:var(--shadow)}.week,.days{display:grid;grid-template-columns:repeat(7,1fr)}.week div{text-align:center;color:var(--muted);font-size:12px;padding:7px}.day{min-height:67px;margin:2px;border-radius:12px;padding:5px;cursor:pointer}.day:hover{background:#f3f6fa}.day.selected{outline:2px solid var(--blue)}.day.today{background:#eff6ff}.day.work{background:#ecfdf5}.num{font-size:13px}.dh{font-size:10px;color:var(--green);font-weight:700;margin-top:7px}
+.section-title{font-size:18px;font-weight:800;margin:22px 0 10px}.record{background:#fff;border-radius:18px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow)}.record-head{display:flex;justify-content:space-between;gap:10px}.record-title{font-weight:800}.hours{color:var(--blue);font-weight:800;white-space:nowrap}.meta{font-size:13px;color:var(--muted);margin-top:6px}.desc{font-size:13px;color:#566070;margin-top:8px;white-space:pre-wrap}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1;border:0;border-radius:10px;padding:9px}.edit{background:#eff6ff;color:var(--blue)}.del{background:#fef2f2;color:var(--red)}
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.tools button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px;color:var(--text)}
+.add{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:min(640px,calc(100% - 32px));height:56px;border:0;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-weight:800;font-size:16px;box-shadow:0 12px 30px rgba(37,99,235,.3);z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}.sheet{width:100%;max-width:680px;background:#fff;border-radius:26px 26px 0 0;padding:20px;max-height:92vh;overflow:auto}.sheet h2{margin:0 0 16px}.form{display:grid;gap:13px}.times{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-actions{display:flex;gap:10px;margin-top:18px}.modal-actions button{flex:1;border:0;border-radius:13px;padding:13px;font-weight:700}.cancel{background:#eef1f5}.save{background:var(--blue);color:#fff}
+.install{display:none;margin-top:12px;background:#eff6ff;color:#174ea6;padding:11px;border-radius:12px;font-size:13px}.install button{float:right;border:0;background:var(--blue);color:#fff;border-radius:8px;padding:5px 9px}
+.empty{text-align:center;color:var(--muted);padding:24px}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);background:#172033;color:#fff;padding:10px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:80;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(min-width:700px){body{padding:24px 0}.header{border-radius:26px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <h1>社會勞動時數</h1>
+  <p>記錄、統計與完成進度</p>
+</header>
+<main>
+  <div id="installBox" class="install">可以把本 App 加入主畫面，像原生 App 一樣使用。<button id="installBtn">加入</button></div>
+
+  <div class="grid">
+    <div class="card"><div class="label">當月累積</div><div class="value blue" id="monthHours">0 小時</div></div>
+    <div class="card"><div class="label">當日時數</div><div class="value green" id="dayHours">0 小時</div></div>
+    <div class="card"><div class="label">今年已完成</div><div class="value orange" id="yearHours">0 小時</div></div>
+    <div class="card"><div class="label">剩餘時數</div><div class="value red" id="remaining">0 小時</div></div>
+  </div>
+
+  <div class="card progress">
+    <div class="progress-top"><span>完成進度</span><b id="progressText">0%</b></div>
+    <div class="bar"><i id="progressBar"></i></div>
+    <div class="meta" id="finishInfo">尚未設定總時數</div>
+  </div>
+
+  <div class="card settings">
+    <div class="setting-row">
+      <div class="field"><label>應完成總時數</label><input id="totalHours" type="number" min="0" step="0.25" placeholder="例如 240"></div>
+      <div class="field"><label>每日預計工時</label><input id="dailyTarget" type="number" min="0.25" step="0.25" placeholder="例如 8"></div>
+    </div>
+    <div class="tools">
+      <button id="backupBtn">💾 備份資料</button>
+      <button id="restoreBtn">📥 還原資料</button>
+      <button id="csvBtn">📊 匯出 Excel</button>
+      <button id="pdfBtn">📄 PDF 報表</button>
+      <button id="clearBtn">🗑️ 清除全部</button>
+    </div>
+    <input id="restoreInput" type="file" accept=".json,application/json" hidden>
+  </div>
+
+  <div class="month"><button class="iconbtn" id="prevMonth">‹</button><strong id="monthTitle"></strong><button class="iconbtn" id="nextMonth">›</button></div>
+
+  <div class="calendar">
+    <div class="week"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
+    <div class="days" id="days"></div>
+  </div>
+
+  <div class="section-title" id="selectedTitle"></div>
+  <div id="records"></div>
+</main>
+</div>
+
+<button class="add" id="addBtn">＋ 新增社會勞動紀錄</button>
+
+<div class="modal" id="modal">
+ <div class="sheet">
+  <h2 id="modalTitle">新增社會勞動</h2>
+  <div class="form">
+   <div class="field"><label>日期</label><input id="date" type="date"></div>
+   <div class="field"><label>標題</label><input id="title" placeholder="例如：環境清潔"></div>
+   <div class="field"><label>地點</label><input id="location" placeholder="例如：○○公園"></div>
+   <div class="times">
+    <div class="field"><label>開始時間</label><input id="start" type="time"></div>
+    <div class="field"><label>結束時間</label><input id="end" type="time"></div>
+   </div>
+   <div class="field"><label>休息時間</label>
+    <select id="break">
+      <option value="0">無休息</option><option value="15">15 分鐘</option><option value="30">30 分鐘</option>
+      <option value="45">45 分鐘</option><option value="60">1 小時</option><option value="90">1 小時 30 分</option><option value="120">2 小時</option>
+    </select>
+   </div>
+   <div class="field"><label>說明</label><textarea id="description" placeholder="例如：整理環境、清潔公共區域……"></textarea></div>
+  </div>
+  <div class="modal-actions"><button class="cancel" id="cancelBtn">取消</button><button class="save" id="saveBtn">儲存紀錄</button></div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
