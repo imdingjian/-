@@ -75,7 +75,7 @@ function render(){ $("totalHours").value=state.totalHours||"";$("dailyTarget").v
 function openModal(r=null){
   editing=r?.id||null;$("modalTitle").textContent=r?"編輯社會勞動":"新增社會勞動";
   $("date").value=r?.date||selected;$("title").value=r?.title||"";$("location").value=r?.location||"";
-  $("start").value=r?.start||"09:00";$("end").value=r?.end||"17:00";$("break").value=String(r?.breakMinutes??60);$("description").value=r?.description||"";
+  $("start").value=r?.start||"08:00";$("end").value=r?.end||"17:00";$("break").value=String(r?.breakMinutes??60);$("description").value=r?.description||"";
   $("modal").classList.add("show");
 }
 function closeModal(){$("modal").classList.remove("show");editing=null}
